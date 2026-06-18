@@ -9,14 +9,15 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    process.env.FRONTEND_URL, // Set this in Render env variables
-  ].filter(Boolean),
+    'https://weaving-store.vercel.app',
+    'https://weaving-store-ezhilmaran3018.vercel.app',
+  ],
   credentials: true,
 }));
 app.use(express.json());
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/weaving-store')
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
 

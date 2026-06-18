@@ -1,26 +1,31 @@
-const express = require('express');
-const router = express.Router();
-const User = require('../models/User');
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
-// Get user profile
-router.get('/:id', async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id).select('-password');
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+const UserSchema = new mongoose.Schema({
+  name: String,
+  email: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
+  phone: String,
+  addresses: [
+    {
+      street: String,
+      city: String,
+      state: String,
+      pincode: String,
+      isDefault: Boolean
+    }
+  ],
+  createdAt: { type: Date, default: Date.now }
 });
 
-// Update user profile
-router.put('/:id', async (req, res) => {
-  try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+UserSchema.pre('save', async function() {
+  if (!this.isModified('password')) return;
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
-module.exports = router;
+UserSchema.methods.matchPassword = async function(enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+module.exports = mongoose.model('User', UserSchema);

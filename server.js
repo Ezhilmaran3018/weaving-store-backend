@@ -6,7 +6,13 @@ const cors = require('cors');
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    process.env.FRONTEND_URL, // Set this in Render env variables
+  ].filter(Boolean),
+  credentials: true,
+}));
 app.use(express.json());
 
 // MongoDB Connection

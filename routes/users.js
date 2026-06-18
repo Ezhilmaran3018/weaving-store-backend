@@ -1,31 +1,9 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const express = require('express');
+const router = express.Router();
+const User = require('../models/User');
 
-const UserSchema = new mongoose.Schema({
-  name: String,
-  email: { type: String, unique: true, required: true },
-  password: { type: String, required: true },
-  phone: String,
-  addresses: [
-    {
-      street: String,
-      city: String,
-      state: String,
-      pincode: String,
-      isDefault: Boolean
-    }
-  ],
-  createdAt: { type: Date, default: Date.now }
+router.get('/profile', async (req, res) => {
+  res.json({ message: 'User profile' });
 });
 
-UserSchema.pre('save', async function() {
-  if (!this.isModified('password')) return;
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
-
-UserSchema.methods.matchPassword = async function(enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
-
-module.exports = mongoose.model('User', UserSchema);
+module.exports = router;
